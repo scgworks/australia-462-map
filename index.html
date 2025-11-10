@@ -1,326 +1,246 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Australia 462 Visa Work Eligibility Map</title>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <style>
-    html, body, #map { height: 100%; margin: 0; padding: 0; }
-
-    .controls {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      z-index: 1000;
-      background: rgba(255,255,255,0.95);
-      padding: 10px;
-      border-radius: 6px;
-      box-shadow: 0 1px 6px rgba(0,0,0,0.2);
-      font-family: "Segoe UI", sans-serif;
-      width: 250px;
-    }
-    .controls strong { display: block; margin-bottom: 4px; }
-
-    .search { margin-top: 6px; }
-    .btn {
-      display: inline-block;
-      padding: 6px 8px;
-      margin-top: 6px;
-      border-radius: 4px;
-      background: #eee;
-      cursor: pointer;
-    }
-
-    .filter-panel {
-      margin-top: 10px;
-      border-top: 1px solid #ccc;
-      padding-top: 6px;
-    }
-    .filter-toggle {
-      cursor: pointer;
-      font-size: 14px;
-      color: #0077cc;
-      user-select: none;
-    }
-    .filter-options {
-      display: none;
-      margin-top: 6px;
-    }
-    .filter-options label {
-      display: block;
-      margin-bottom: 4px;
-      font-size: 13px;
-      cursor: pointer;
-    }
-
-    .legend-panel {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      z-index: 1000;
-      background: rgba(255,255,255,0.95);
-      padding: 10px 12px;
-      border-radius: 6px;
-      box-shadow: 0 1px 6px rgba(0,0,0,0.2);
-      font-family: "Segoe UI", sans-serif;
-      width: 220px;
-      line-height: 1.4em;
-    }
-    .legend-item { display: flex; align-items: center; margin-bottom: 5px; }
-    .legend-item img { width: 20px; height: 20px; margin-right: 6px; border-radius: 4px; }
-    .color-box { display: flex; align-items: center; margin-top: 4px; }
-    .color-swatch {
-      width: 20px; height: 14px; border: 1px solid #aaa;
-      margin-right: 6px; border-radius: 2px;
-    }
-
-    .update-note {
-      position: absolute;
-      bottom: 5px;
-      left: 8px;
-      z-index: 999;
-      background: rgba(255,255,255,0.8);
-      padding: 3px 8px;
-      font-size: 11px;
-      font-family: "Segoe UI", sans-serif;
-      border-radius: 4px;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.2);
-    }
-
-    #kofi-container {
-      position: absolute;
-      bottom: 40px;
-      left: 8px;
-      z-index: 999;
-      transform: scale(0.9);
-      opacity: 0.95;
-    }
-    #kofi-container:hover {
-      transform: scale(1);
-      opacity: 1;
-    }
-  </style>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Australia Specified Work for 462 Visa Map</title>
+<link rel="icon" href="favicon.ico?v=2">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="assets/icons/favicon-16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="assets/icons/apple-touch-icon.png">
+<link rel="manifest" href="site.webmanifest">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<style>
+html,body,#map{height:100%;margin:0;padding:0;font-family:"Segoe UI",sans-serif;}
+.controls{
+  position:absolute;top:10px;left:10px;z-index:1400;
+  background:rgba(255,255,255,0.96);
+  padding:10px;border-radius:8px;
+  width:300px;box-shadow:0 3px 10px rgba(0,0,0,0.12);
+}
+.search{position:relative;width:100%;}
+.search input{
+  width:100%;padding:8px 10px;border-radius:6px;border:1px solid #ccc;font-size:14px;
+  box-sizing:border-box;
+}
+#suggestions{
+  position:absolute;left:0;right:0;top:44px;z-index:2200;
+  background:#fff;border:1px solid #ccc;border-top:none;max-height:220px;overflow:auto;
+  display:none;border-radius:0 0 6px 6px;
+}
+#suggestions .item{
+  padding:8px 10px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;
+  font-size:13px;
+}
+#suggestions .item:hover{background:#e9f3ff;}
+.filter-panel{margin-top:8px;border-top:1px solid #efefef;padding-top:8px;}
+.filter-toggle{cursor:pointer;color:#0077cc;margin-bottom:6px;}
+.filter-options{display:none;}
+.legend-panel{
+  position:absolute;top:10px;right:10px;z-index:1300;
+  background:rgba(255,255,255,0.96);
+  padding:10px;border-radius:8px;width:240px;
+  box-shadow:0 3px 10px rgba(0,0,0,0.12);
+}
+.legend-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
+.legend-toggle{cursor:pointer;color:#0077cc;font-size:13px;}
+#info-panel{
+  position:absolute;bottom:110px;left:10px;z-index:1301;background:#fff;padding:10px;border-radius:8px;
+  width:240px;box-shadow:0 6px 18px rgba(0,0,0,0.12);display:none;
+}
+#info-panel h3{margin:0 0 6px 0;font-size:15px;}
+#info-panel .icons img{width:26px;height:26px;margin:4px;}
+@media(max-width:768px){
+  .controls{width:85%;left:50%;transform:translateX(-50%);}
+  .legend-panel{width:85%;right:50%;transform:translateX(50%);top:10px;}
+  #info-panel{width:85%;left:50%;transform:translateX(-50%);}
+  .search input{padding:7px 8px;font-size:13px;}
+}
+</style>
 </head>
 <body>
-  <div id="map"></div>
+<div id="map"></div>
 
-  <div class="controls" id="controls">
-    <strong>462 Visa Eligibility Map</strong>
-    <small>Click any area for details</small>
-
-    <div class="search">
-      <input id="search-box" placeholder="Search suburb/postcode/state" style="width:220px;padding:6px" />
-      <button id="search-btn" class="btn">Find</button>
-    </div>
-
-    <div class="filter-panel">
-      <div class="filter-toggle" onclick="toggleFilter()">▼ Filter Industries</div>
-      <div id="filter-options" class="filter-options">
-        <label><input type="checkbox" value="tourism"> Tourism</label>
-        <label><input type="checkbox" value="hospitality"> Hospitality</label>
-        <label><input type="checkbox" value="plant_animal"> Plant & Animal</label>
-        <label><input type="checkbox" value="forestry"> Forestry</label>
-        <label><input type="checkbox" value="fishing"> Fishing & Pearling</label>
-        <label><input type="checkbox" value="construction"> Construction</label>
-      </div>
+<!-- Left control box -->
+<div class="controls" id="controls">
+  <strong>462 Visa Eligibility Map</strong>
+  <div class="search" style="margin-top:8px">
+    <input id="search-box" placeholder="Search suburb / postcode / state" autocomplete="off"/>
+    <div id="suggestions"></div>
+  </div>
+  <div class="filter-panel">
+    <div class="filter-toggle" onclick="toggleFilter()">▼ Filter industries</div>
+    <div id="filter-options" class="filter-options">
+      <label><input type="checkbox" value="tourism"> Tourism</label><br>
+      <label><input type="checkbox" value="hospitality"> Hospitality</label><br>
+      <label><input type="checkbox" value="plant_animal"> Plant & Animal</label><br>
+      <label><input type="checkbox" value="forestry"> Forestry</label><br>
+      <label><input type="checkbox" value="fishing"> Fishing & Pearling</label><br>
+      <label><input type="checkbox" value="construction"> Construction</label>
     </div>
   </div>
+</div>
 
-  <!-- 🔹 Legend -->
-  <div class="legend-panel">
+<!-- Info box bottom left -->
+<div id="info-panel"></div>
+
+<!-- Legend top right -->
+<div class="legend-panel" id="legend">
+  <div class="legend-header">
     <strong>Legend</strong>
-    <div class="legend-item"><img src="icons/tourism.png"> Tourism</div>
-    <div class="legend-item"><img src="icons/hospitality.png"> Hospitality</div>
-    <div class="legend-item"><img src="icons/plant_animal.png"> Plant & Animal</div>
-    <div class="legend-item"><img src="icons/forestry.png"> Forestry</div>
-    <div class="legend-item"><img src="icons/fishing.png"> Fishing & Pearling</div>
-    <div class="legend-item"><img src="icons/construction.png"> Construction</div>
-    <strong>Color Scale</strong>
-    <div class="color-box"><div class="color-swatch" style="background:#ff4d4d"></div> Not eligible</div>
-    <div class="color-box"><div class="color-swatch" style="background:#ffb84d"></div> 1–2 industries</div>
-    <div class="color-box"><div class="color-swatch" style="background:#ffff66"></div> 3–4 industries</div>
-    <div class="color-box"><div class="color-swatch" style="background:#2ecc71"></div> 5–6 industries</div>
+    <div class="legend-toggle" id="legend-toggle">Hide</div>
   </div>
-
-  <!-- 🔹 Ko-fi Button -->
-  <div id="kofi-container">
-    <script type="text/javascript" src="https://storage.ko-fi.com/cdn/widget/Widget_2.js"></script>
-    <script type="text/javascript">
-      kofiwidget2.init('Support me on Ko-fi', '#72a4f2', 'M4M71O7IRH');
-      kofiwidget2.draw();
-    </script>
+  <div id="legend-content">
+    <div><img src="icons/tourism.png" width="20" style="margin-right:6px">Tourism</div>
+    <div><img src="icons/hospitality.png" width="20" style="margin-right:6px">Hospitality</div>
+    <div><img src="icons/plant_animal.png" width="20" style="margin-right:6px">Plant & Animal</div>
+    <div><img src="icons/forestry.png" width="20" style="margin-right:6px">Forestry</div>
+    <div><img src="icons/fishing.png" width="20" style="margin-right:6px">Fishing & Pearling</div>
+    <div><img src="icons/construction.png" width="20" style="margin-right:6px">Construction</div>
+    <hr>
+    <div><div style="width:18px;height:12px;background:#ff4d4d;border:1px solid #aaa;display:inline-block;margin-right:6px"></div>Not eligible</div>
+    <div><div style="width:18px;height:12px;background:#2ecc71;border:1px solid #aaa;display:inline-block;margin-right:6px"></div>Eligible</div>
   </div>
+</div>
 
-  <!-- 🔹 Last Updated -->
-  <div class="update-note">Data last updated: November 2025</div>
+<!-- Ko-fi and update note -->
+<div style="position:absolute;bottom:40px;left:8px;z-index:1200">
+  <script src="https://storage.ko-fi.com/cdn/widget/Widget_2.js"></script>
+  <script>kofiwidget2.init('Support me on Ko-fi','#72a4f2','M4M71O7IRH');kofiwidget2.draw();</script>
+</div>
+<div style="position:absolute;bottom:8px;left:8px;z-index:1200;background:rgba(255,255,255,0.9);padding:6px;border-radius:6px;font-size:12px">Data last updated: November 2025</div>
 
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="https://unpkg.com/@turf/turf@6/turf.min.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+(async function(){
+  const pad=s=>/^\d+$/.test(s)?s.padStart(4,'0'):s;
+  const abbrev=s=>{
+    const n=(s||'').toUpperCase();
+    if(n.includes('NEW SOUTH'))return'NSW';
+    if(n.includes('NORTHERN'))return'NT';
+    if(n.includes('QUEEN'))return'QLD';
+    if(n.includes('WESTERN'))return'WA';
+    if(n.includes('SOUTH AUSTRALIA'))return'SA';
+    if(n.includes('TAS'))return'TAS';
+    if(n.includes('VICTORIA'))return'VIC';
+    if(n.includes('CAPITAL'))return'ACT';
+    return n;
+  };
+  const gradColor=c=>c===0?"#ff4d4d":c<=2?"#ffb84d":c<=4?"#ffff66":"#2ecc71";
 
-  <script>
-  (async function() {
-    const INDUSTRIES = ["tourism","hospitality","plant_animal","forestry","fishing","construction"];
-    let activeFilters = [];
+  const map=L.map('map',{minZoom:3,maxZoom:12,maxBounds:L.latLngBounds([-44,112],[-8,155]),maxBoundsViscosity:1}).setView([-25,133],5);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
-    // Filter toggle
-    window.toggleFilter = function() {
-      const el = document.getElementById('filter-options');
-      el.style.display = el.style.display === 'block' ? 'none' : 'block';
+  const [visa,states,posts,subs]=await Promise.all([
+    fetch('data/visa_462.json').then(r=>r.json()),
+    fetch('data/states.geojson').then(r=>r.json()),
+    fetch('data/postcodes.geojson').then(r=>r.json()),
+    fetch('data/suburbs.geojson').then(r=>r.json())
+  ]);
+
+  const visaNorm={};Object.keys(visa).forEach(k=>visaNorm[pad(k)]=visa[k]);
+  posts.features.forEach(f=>{const p=f.properties;p.POSTCODE=pad(p.POSTCODE||'');p.STATE=abbrev(p.STATE||'');p.INDUSTRIES=visaNorm[p.POSTCODE]||[]});
+  subs.features.forEach(f=>{const p=f.properties;p.POSTCODE=pad(p.POSTCODE||'');p.STATE=abbrev(p.STATE||'');p.INDUSTRIES=visaNorm[p.POSTCODE]||[]});
+  states.features.forEach(f=>{const p=f.properties;p.STATE=abbrev(p.STATE||p.STE_NAME21||'')});
+
+  const getStateInds=st=>{const s=new Set();posts.features.filter(f=>f.properties.STATE===st).forEach(f=>(visaNorm[f.properties.POSTCODE]||[]).forEach(i=>s.add(i)));return[...s];};
+  const info=document.getElementById('info-panel');
+
+  // shared single marker
+  let activeMarker=null;
+
+  function drawStyle(f){
+    const p=f.properties,i=p.INDUSTRIES||getStateInds(p.STATE);
+    return {color:'#444',weight:.6,fillColor:gradColor(i.length),fillOpacity:.56};
+  }
+
+  const showInfo=f=>{
+    const p=f.properties,i=p.INDUSTRIES||getStateInds(p.STATE);
+    info.innerHTML=`<h3>${p.STATE||''}${p.POSTCODE?' - '+p.POSTCODE:''}</h3>${p.NAME?'<div><strong>Suburb:</strong> '+p.NAME+'</div>':''}<div style="margin-top:8px"><strong>Eligible:</strong></div>${i.length?i.map(x=>`<img src="icons/${x}.png" width="26" style="margin:3px">`).join(''):'<div><em>Not eligible</em></div>'}`;
+    info.style.display='block';
+
+    // remove old marker before adding new
+    if(activeMarker){ map.removeLayer(activeMarker); activeMarker=null; }
+
+    const bounds=L.geoJSON(f).getBounds();
+    const center=bounds.getCenter();
+    activeMarker=L.marker(center).addTo(map);
+  };
+
+  const layerS=L.geoJSON(states,{style:drawStyle,onEachFeature:(f,l)=>l.on('click',()=>{showInfo(f);})});
+  const layerP=L.geoJSON(posts,{style:drawStyle,onEachFeature:(f,l)=>l.on('click',()=>{showInfo(f);})});
+  const layerSub=L.geoJSON(subs,{style:drawStyle,onEachFeature:(f,l)=>l.on('click',()=>{showInfo(f);})});
+
+  function showLayer(z){
+    [layerS,layerP,layerSub].forEach(l=>map.removeLayer(l));
+    if(z<6)map.addLayer(layerS);
+    else if(z<9)map.addLayer(layerP);
+    else map.addLayer(layerSub);
+  }
+  map.on('zoomend',()=>showLayer(map.getZoom()));showLayer(map.getZoom());
+
+  // Search suggestion logic
+  const entries=[];
+  subs.features.forEach(f=>{const p=f.properties;entries.push({type:'suburb',name:p.NAME,postcode:p.POSTCODE,state:p.STATE,feat:f})});
+  posts.features.forEach(f=>{const p=f.properties;entries.push({type:'postcode',name:p.POSTCODE,postcode:p.POSTCODE,state:p.STATE,feat:f})});
+  states.features.forEach(f=>{const p=f.properties;entries.push({type:'state',name:p.STATE,state:p.STATE,feat:f})});
+
+  const box=document.getElementById('search-box');
+  const list=document.getElementById('suggestions');
+  box.addEventListener('input',()=>{
+    const val=box.value.trim().toLowerCase();
+    if(!val){list.style.display='none';return;}
+    const matches=entries.filter(e=>e.name&&e.name.toLowerCase().includes(val)).slice(0,12);
+    if(matches.length===0){list.style.display='none';return;}
+    list.innerHTML=matches.map(m=>{
+      const label=m.type==='suburb'?`${m.name} — ${m.postcode} — ${m.state}`:m.type==='postcode'?`Postcode ${m.name} — ${m.state}`:`State ${m.name}`;
+      return `<div class="item" data-type="${m.type}" data-name="${m.name}" data-postcode="${m.postcode||''}" data-state="${m.state||''}">${label}</div>`;
+    }).join('');
+    list.style.display='block';
+  });
+
+  list.addEventListener('click',e=>{
+    const div=e.target.closest('.item');if(!div)return;
+    const type=div.dataset.type,name=div.dataset.name,postcode=div.dataset.postcode,state=div.dataset.state;
+    let f;
+    if(type==='suburb')f=subs.features.find(x=>x.properties.NAME===name&&x.properties.POSTCODE===postcode&&x.properties.STATE===state);
+    else if(type==='postcode')f=posts.features.find(x=>x.properties.POSTCODE===name&&x.properties.STATE===state);
+    else f=states.features.find(x=>x.properties.STATE===name);
+    if(!f){list.style.display='none';return;}
+    const bounds=L.geoJSON(f).getBounds();
+    map.fitBounds(bounds,{duration:0.8});
+    showInfo(f);
+    if(activeMarker){ map.removeLayer(activeMarker); activeMarker=null; }
+    activeMarker=L.marker(bounds.getCenter(),{title:name}).addTo(map);
+    list.style.display='none';
+  });
+
+  document.body.addEventListener('click',e=>{if(!e.target.closest('.search'))list.style.display='none';});
+
+  // Filter logic
+  window.toggleFilter=()=>{const el=document.getElementById('filter-options');el.style.display=el.style.display==='block'?'none':'block';};
+  document.getElementById('filter-options').addEventListener('change',()=>{
+    const selected=[...document.querySelectorAll('#filter-options input:checked')].map(c=>c.value);
+    const applyFilter=(layer)=>{
+      layer.eachLayer(l=>{
+        const p=l.feature.properties;
+        const inds=p.INDUSTRIES||getStateInds(p.STATE);
+        const match=selected.length===0||selected.some(s=>inds.includes(s));
+        const fill=selected.length>0?(match?'#2ecc71':'#cccccc'):gradColor(inds.length);
+        l.setStyle({fillColor:fill,fillOpacity:.56});
+      });
     };
-    document.querySelectorAll('#filter-options input[type=checkbox]').forEach(cb => cb.addEventListener('change', updateFilter));
+    [layerS,layerP,layerSub].forEach(applyFilter);
+  });
 
-    function updateFilter() {
-      activeFilters = Array.from(document.querySelectorAll('#filter-options input:checked')).map(c => c.value);
-      recolorLayers();
-    }
-
-    const pad = pc => /^\d+$/.test(pc) ? pc.padStart(4, '0') : pc;
-    function getEligibilityColor(count) {
-      if (count === 0) return "#ff4d4d";
-      if (count <= 2) return "#ffb84d";
-      if (count <= 4) return "#ffff66";
-      return "#2ecc71";
-    }
-
-    const map = L.map('map', {
-      zoomControl: true,
-      minZoom: 3,
-      maxZoom: 12,
-      maxBounds: L.latLngBounds([-44.0, 112.0], [-8.0, 155.0]),
-      maxBoundsViscosity: 1.0
-    }).setView([-25.0, 133.0], 5);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-
-    const visa = await fetch('data/visa_462.json').then(r => r.json());
-    const post = await fetch('data/postcodes.geojson').then(r => r.json());
-    const states = await fetch('data/states.geojson').then(r => r.json());
-    const suburbs = await fetch('data/suburbs.geojson').then(r => r.json());
-
-    // Attach industries
-    function attachIndustries(features) {
-      features.forEach(f => {
-        const pc = pad(String(f.properties.POSTCODE || ''));
-        f.properties.INDUSTRIES = visa[pc] || [];
-      });
-    }
-    attachIndustries(post.features);
-    attachIndustries(suburbs.features);
-
-    const layerGroups = {
-      state: L.geoJSON(states, { style: f => stateStyle(f), onEachFeature }),
-      postcode: L.geoJSON(post, { style: f => featureStyle(f), onEachFeature }),
-      suburb: L.geoJSON(suburbs, { style: f => featureStyle(f), onEachFeature })
-    };
-
-    const stateLookup = {};
-    layerGroups.state.eachLayer(l => {
-      const st = (l.feature.properties.STATE || '').toUpperCase();
-      stateLookup[st] = l;
-    });
-
-    colorStatesByPostcodes();
-    updateVisibleLayers();
-    map.on('zoomend', updateVisibleLayers);
-
-    document.getElementById('search-btn').addEventListener('click', doSearch);
-    document.getElementById('search-box').addEventListener('keypress', e => { if (e.key === 'Enter') doSearch(); });
-    function doSearch() {
-      const q = document.getElementById('search-box').value.trim().toLowerCase();
-      if (!q) return;
-      let found = null;
-      for (const [type, layer] of Object.entries(layerGroups)) {
-        layer.eachLayer(l => {
-          const p = l.feature.properties;
-          const state = (p.STATE || '').toLowerCase();
-          const pc = (p.POSTCODE || '').toString();
-          const name = (p.NAME || '').toLowerCase();
-          if (state.includes(q) || pc === q || name.includes(q)) found = l;
-        });
-      }
-      if (found) {
-        map.flyToBounds(found.getBounds(), { duration: 1.2 });
-        found.fire('click');
-      } else alert('No matching area found.');
-    }
-
-    // Style functions
-    function featureStyle(f) {
-      const inds = f.properties.INDUSTRIES || [];
-      let color = getEligibilityColor(inds.length);
-      if (activeFilters.length > 0) {
-        const match = inds.some(i => activeFilters.includes(i));
-        color = match ? "#2ecc71" : "#ccc";
-      }
-      return { color: "#444", weight: 0.6, fillColor: color, fillOpacity: 0.55 };
-    }
-
-    function stateStyle(f) {
-      const st = (f.properties.STATE || '').toUpperCase();
-      const inds = getStateIndustries(st);
-      let color = getEligibilityColor(inds.length);
-      if (activeFilters.length > 0) {
-        const match = inds.some(i => activeFilters.includes(i));
-        color = match ? "#2ecc71" : "#ccc";
-      }
-      return { color: "#333", weight: 0.8, fillColor: color, fillOpacity: 0.55 };
-    }
-
-    // Popup
-    function onEachFeature(f, l) {
-      l.on('click', () => {
-        const p = f.properties;
-        let html = '';
-        if (p.STATE) html += `<strong>State:</strong> ${p.STATE}<br>`;
-        if (p.POSTCODE) html += `<strong>Postcode:</strong> ${p.POSTCODE}<br>`;
-        if (p.NAME) html += `<strong>Suburb:</strong> ${p.NAME}<br>`;
-        const inds = (p.INDUSTRIES || getStateIndustries(p.STATE)) || [];
-        html += `<strong>Eligible Industries:</strong><br>`;
-        if (inds.length > 0) {
-          html += `<div>`;
-          inds.forEach(i => { html += `<img src="icons/${i}.png" title="${i.replace('_',' ')}" width="24">`; });
-          html += `</div>`;
-        } else html += `<em>Not eligible</em>`;
-        l.bindPopup(html).openPopup();
-      });
-    }
-
-    function updateVisibleLayers() {
-      const z = map.getZoom();
-      Object.values(layerGroups).forEach(l => map.removeLayer(l));
-      if (z < 6) map.addLayer(layerGroups.state);
-      else if (z < 9) map.addLayer(layerGroups.postcode);
-      else map.addLayer(layerGroups.suburb);
-    }
-
-    // State industry logic (fixed)
-    function getStateIndustries(st) {
-      const merged = new Set();
-      const stateUpper = (st || '').trim().toUpperCase();
-      post.features.forEach(f => {
-        const fstate = (f.properties.STATE || '').trim().toUpperCase();
-        if (fstate === stateUpper) {
-          const pc = pad(String(f.properties.POSTCODE || ''));
-          const inds = visa[pc] || [];
-          inds.forEach(i => merged.add(i));
-        }
-      });
-      return Array.from(merged);
-    }
-
-    function colorStatesByPostcodes() {
-      Object.entries(stateLookup).forEach(([st, l]) => {
-        const inds = getStateIndustries(st);
-        l.setStyle({ fillColor: getEligibilityColor(inds.length), fillOpacity: 0.55 });
-      });
-    }
-
-    function recolorLayers() {
-      for (const [key, layer] of Object.entries(layerGroups)) {
-        layer.setStyle(f => key === 'state' ? stateStyle(f) : featureStyle(f));
-      }
-    }
-  })();
-  </script>
+  // Legend toggle
+  document.getElementById('legend-toggle').onclick=()=>{
+    const c=document.getElementById('legend-content');
+    const b=document.getElementById('legend-toggle');
+    if(c.style.display==='none'){c.style.display='block';b.textContent='Hide';}
+    else{c.style.display='none';b.textContent='Show';}
+  };
+})();
+</script>
 </body>
 </html>
