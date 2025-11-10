@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Australia 462 Visa Work Eligibility Map</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    html, body, #map { height: 100%; margin: 0; padding: 0; }
+    .controls {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      z-index: 1000;
+      background: rgba(255,255,255,0.95);
+      padding: 10px;
+      border-radius: 6px;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.2);
+      font-family: "Segoe UI", sans-serif;
+      width: 250px;
+    }
+    .controls strong { display: block; margin-bottom: 4px; }
+    .search { margin-top: 6px; }
+    .btn {
+      display: inline-block;
+      padding: 6px 8px;
+      margin-top: 6px;
+      border-radius: 4px;
+      background: #eee;
+      cursor: pointer;
+    }
+    .filter-panel {
+      margin-top: 10px;
+      border-top: 1px solid #ccc;
+      padding-top: 6px;
+    }
+    .filter-toggle {
+      cursor: pointer;
+      font-size: 14px;
+      color: #0077cc;
+      user-select: none;
+    }
+    .filter-options {
+      display: none;
+      margin-top: 6px;
+    }
+    .filter-options label {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .legend-panel {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      z-index: 1000;
+      background: rgba(255,255,255,0.95);
+      padding: 10px 12px;
+      border-radius: 6px;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.2);
+      font-family: "Segoe UI", sans-serif;
+      width: 220px;
+      line-height: 1.4em;
+    }
+    .legend-item { display: flex; align-items: center; margin-bottom: 5px; }
+    .legend-item img { width: 20px; height: 20px; margin-right: 6px; border-radius: 4px; }
+    .color-box { display: flex; align-items: center; margin-top: 4px; }
+    .color-swatch {
+      width: 20px; height: 14px; border: 1px solid #aaa;
+      margin-right: 6px; border-radius: 2px;
+    }
+    .update-note {
+      position: absolute;
+      bottom: 5px;
+      left: 8px;
+      z-index: 999;
+      background: rgba(255,255,255,0.8);
+      padding: 3px 8px;
+      font-size: 11px;
+      font-family: "Segoe UI", sans-serif;
+      border-radius: 4px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+    }
+    #kofi-container {
+      transform: scale(0.9);
+      opacity: 0.95;
+    }
+    #kofi-container:hover {
+      transform: scale(1);
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+
+  <!-- 🔹 Controls (Search + Filter) -->
+  <div class="controls" id="controls">
+    <strong>462 Visa Eligibility Map</strong>
+    <small>Click any area for details</small>
+
+    <div class="search">
+      <input id="search-box" placeholder="Search suburb/postcode/state" style="width:220px;padding:6px" />
+      <button id="search-btn" class="btn">Find</button>
+    </div>
+
+    <div class="filter-panel">
+      <div class="filter-toggle" onclick="toggleFilter()">▼ Filter Industries</div>
+      <div id="filter-options" class="filter-options">
+        <label><input type="checkbox" value="tourism"> Tourism</label>
+        <label><input type="checkbox" value="hospitality"> Hospitality</label>
+        <label><input type="checkbox" value="plant_animal"> Plant & Animal</label>
+        <label><input type="checkbox" value="forestry"> Forestry</label>
+        <label><input type="checkbox" value="fishing"> Fishing & Pearling</label>
+        <label><input type="checkbox" value="construction"> Construction</label>
+      </div>
+    </div>
+  </div>
+
+  <!-- 🔹 Legend -->
+  <div class="legend-panel">
+    <strong>Legend</strong>
+    <div class="legend-item"><img src="icons/tourism.png"> Tourism</div>
+    <div class="legend-item"><img src="icons/hospitality.png"> Hospitality</div>
+    <div class="legend-item"><img src="icons/plant_animal.png"> Plant & Animal</div>
+    <div class="legend-item"><img src="icons/forestry.png"> Forestry</div>
+    <div class="legend-item"><img src="icons/fishing.png"> Fishing & Pearling</div>
+    <div class="legend-item"><img src="icons/construction.png"> Construction</div>
+    <strong>Color Scale</strong>
+    <div class="color-box"><div class="color-swatch" style="background:#ff4d4d"></div> Not eligible</div>
+    <div class="color-box"><div class="color-swatch" style="background:#ffb84d"></div> 1–2 industries</div>
+    <div class="color-box"><div class="color-swatch" style="background:#ffff66"></div> 3–4 industries</div>
+    <div class="color-box"><div class="color-swatch" style="background:#2ecc71"></div> 5–6 industries</div>
+  </div>
+
+  <!-- 🔹 Ko-fi Support Button -->
+  <div id="kofi-container" style="position:absolute;bottom:40px;left:8px;z-index:999;">
+    <script type="text/javascript" src="https://storage.ko-fi.com/cdn/widget/Widget_2.js"></script>
+    <script type="text/javascript">
+      kofiwidget2.init('Support me on Ko-fi', '#72a4f2', 'M4M71O7IRH');
+      kofiwidget2.draw();
+    </script>
+  </div>
+
+  <!-- 🔹 Last Updated -->
+  <div class="update-note">Data last updated: November 2025</div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/@turf/turf@6/turf.min.js"></script>
+
+  <script>
+  (async function() {
+    const INDUSTRIES = ["tourism","hospitality","plant_animal","forestry","fishing","construction"];
+    let activeFilters = [];
+
+    // --- Toggle Filter Panel ---
+    window.toggleFilter = function() {
+      const el = document.getElementById('filter-options');
+      el.style.display = el.style.display === 'block' ? 'none' : 'block';
+    };
+
+    document.querySelectorAll('#filter-options input[type=checkbox]').forEach(cb => {
+      cb.addEventListener('change', updateFilter);
+    });
+
+    function updateFilter() {
+      activeFilters = Array.from(document.querySelectorAll('#filter-options input:checked')).map(c => c.value);
+      recolorLayers();
+    }
+
+    // --- Color Helper ---
+    function getEligibilityColor(count) {
+      if (count === 0) return "#ff4d4d";
+      if (count <= 2) return "#ffb84d";
+      if (count <= 4) return "#ffff66";
+      return "#2ecc71";
+    }
+
+    // --- Initialize Map ---
+    const map = L.map('map', {
+      zoomControl: true,
+      minZoom: 3,
+      maxZoom: 12,
+      maxBounds: L.latLngBounds([-44.0, 112.0], [-8.0, 155.0]),
+      maxBoundsViscosity: 1.0
+    }).setView([-25.0, 133.0], 5);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18 }).addTo(map);
+
+    // --- Load Data ---
+    const visa = await fetch('data/visa_462.json').then(r => r.json());
+    const post = await fetch('data/postcodes.geojson').then(r => r.json());
+    const states = await fetch('data/states.geojson').then(r => r.json());
+    const suburbs = await fetch('data/suburbs.geojson').then(r => r.json());
+
+    // Pad postcode
+    const pad = pc => /^\d+$/.test(pc) ? pc.padStart(4, '0') : pc;
+
+    // Add visa data to each layer
+    function attachIndustries(features) {
+      features.forEach(f => {
+        const pc = pad(String(f.properties.POSTCODE || f.properties.postcode || ''));
+        f.properties.INDUSTRIES = visa[pc] || [];
+      });
+    }
+
+    attachIndustries(post.features);
+    attachIndustries(suburbs.features);
+
+    const layerGroups = {
+      state: L.geoJSON(states, { style: f => stateStyle(f), onEachFeature }),
+      postcode: L.geoJSON(post, { style: f => featureStyle(f), onEachFeature }),
+      suburb: L.geoJSON(suburbs, { style: f => featureStyle(f), onEachFeature })
+    };
+
+    const stateLookup = {};
+    layerGroups.state.eachLayer(l => {
+      const st = (l.feature.properties.STATE || '').toUpperCase();
+      stateLookup[st] = l;
+    });
+
+    colorStatesByPostcodes();
+
+    updateVisibleLayers();
+    map.on('zoomend', updateVisibleLayers);
+
+    // --- Search ---
+    document.getElementById('search-btn').addEventListener('click', doSearch);
+    document.getElementById('search-box').addEventListener('keypress', e => { if (e.key === 'Enter') doSearch(); });
+
+    function doSearch() {
+      const q = document.getElementById('search-box').value.trim().toLowerCase();
+      if (!q) return;
+      let found = null;
+      for (const [type, layer] of Object.entries(layerGroups)) {
+        layer.eachLayer(l => {
+          const p = l.feature.properties;
+          const state = (p.STATE || '').toLowerCase();
+          const pc = (p.POSTCODE || '').toString();
+          const name = (p.NAME || '').toLowerCase();
+          if (state.includes(q) || pc === q || name.includes(q)) found = l;
+        });
+      }
+      if (found) {
+        map.flyToBounds(found.getBounds(), { duration: 1.2 });
+        found.fire('click');
+      } else alert('No matching area found.');
+    }
+
+    // --- Style Functions ---
+    function featureStyle(f) {
+      const inds = f.properties.INDUSTRIES || [];
+      let color = getEligibilityColor(inds.length);
+      if (activeFilters.length > 0) {
+        const match = inds.some(i => activeFilters.includes(i));
+        color = match ? "#2ecc71" : "#ccc"; // green or grey
+      }
+      return { color: "#444", weight: 0.6, fillColor: color, fillOpacity: 0.55 };
+    }
+
+    function stateStyle(f) {
+      const st = (f.properties.STATE || '').toUpperCase();
+      const inds = getStateIndustries(st);
+      let color = getEligibilityColor(inds.length);
+      if (activeFilters.length > 0) {
+        const match = inds.some(i => activeFilters.includes(i));
+        color = match ? "#2ecc71" : "#ccc";
+      }
+      return { color: "#333", weight: 0.8, fillColor: color, fillOpacity: 0.55 };
+    }
+
+    // --- Popup behavior ---
+    function onEachFeature(f, l) {
+      l.on('click', e => {
+        const p = f.properties;
+        let html = '';
+        if (p.STATE) html += `<strong>State:</strong> ${p.STATE}<br>`;
+        if (p.POSTCODE) html += `<strong>Postcode:</strong> ${p.POSTCODE}<br>`;
+        if (p.NAME) html += `<strong>Suburb:</strong> ${p.NAME}<br>`;
+        const inds = p.INDUSTRIES || [];
+        html += `<strong>Eligible Industries:</strong><br>`;
+        if (inds.length > 0) {
+          html += `<div>`;
+          inds.forEach(i => { html += `<img src="icons/${i}.png" title="${i.replace('_',' ')}" width="24">`; });
+          html += `</div>`;
+        } else html += `<em>Not eligible</em>`;
+        l.bindPopup(html).openPopup();
+      });
+    }
+
+    function updateVisibleLayers() {
+      const z = map.getZoom();
+      Object.values(layerGroups).forEach(l => map.removeLayer(l));
+      if (z < 6) map.addLayer(layerGroups.state);
+      else if (z < 9) map.addLayer(layerGroups.postcode);
+      else map.addLayer(layerGroups.suburb);
+    }
+
+    // --- Color states ---
+    function getStateIndustries(st) {
+      const merged = new Set();
+      Object.entries(visa).forEach(([pc, inds]) => {
+        const f = post.features.find(x => pad(String(x.properties.POSTCODE)) === pc);
+        if (f && f.properties.STATE && f.properties.STATE.toUpperCase() === st) {
+          inds.forEach(i => merged.add(i));
+        }
+      });
+      return Array.from(merged);
+    }
+
+    function colorStatesByPostcodes() {
+      Object.entries(stateLookup).forEach(([st, l]) => {
+        const inds = getStateIndustries(st);
+        l.setStyle({ fillColor: getEligibilityColor(inds.length), fillOpacity: 0.55 });
+      });
+    }
+
+    // --- Filter refresh ---
+    function recolorLayers() {
+      for (const [key, layer] of Object.entries(layerGroups)) {
+        layer.setStyle(f => key === 'state' ? stateStyle(f) : featureStyle(f));
+      }
+    }
+  })();
+  </script>
+</body>
+</html>
