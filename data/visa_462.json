@@ -225,7 +225,11 @@
   ],
   "0872": [
     "construction",
-    "plant_animal"
+    "fishing",
+    "forestry",
+    "hospitality",
+    "plant_animal",
+    "tourism"
   ],
   "0873": [
     "construction",
