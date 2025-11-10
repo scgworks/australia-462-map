@@ -72,9 +72,7 @@ Donations are completely optional and will go toward hosting and development cos
 ## 🚀 Live Website
 
 You can view the map here:  
-👉 **[Australia 462 Visa Work Map](https://YOUR_GITHUB_USERNAME.github.io/australia-462-map/)**
-
-*(Replace `YOUR_GITHUB_USERNAME` with your actual GitHub username once published.)*
+👉 **[Australia 462 Visa Work Map](https://scgworks.github.io/australia-462-map/)**
 
 ---
 
@@ -84,27 +82,6 @@ You can view the map here:
 - **Leaflet.js** for interactive mapping  
 - **Turf.js** for geospatial operations  
 - **GeoJSON** for location data  
-
----
-
-## 🧰 Project Structure
-
-├── index.html # Main page
-├── data/
-│ ├── postcodes.geojson
-│ ├── states.geojson
-│ ├── suburbs.geojson
-│ └── visa_462.json
-└── icons/
-├── tourism.png
-├── hospitality.png
-├── plant_animal.png
-├── forestry.png
-├── fishing.png
-└── construction.png
-
-yaml
-Copy code
 
 ---
 
