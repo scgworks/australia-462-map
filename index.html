@@ -300,12 +300,23 @@
     // --- Color states ---
     function getStateIndustries(st) {
       const merged = new Set();
-      Object.entries(visa).forEach(([pc, inds]) => {
-        const f = post.features.find(x => pad(String(x.properties.POSTCODE)) === pc);
-        if (f && f.properties.STATE && f.properties.STATE.toUpperCase() === st) {
+      if (!st) return [];
+    
+      const stateUpper = st.trim().toUpperCase();
+    
+      Object.entries(visa).forEach(([pcRaw, inds]) => {
+        const pc = pad(String(pcRaw)); // ensure 4-digit postcode
+        // find postcode feature in post layer
+        const match = post.features.find(f => {
+          const fpc = pad(String(f.properties.POSTCODE));
+          const fstate = (f.properties.STATE || '').trim().toUpperCase();
+          return fpc === pc && fstate === stateUpper;
+        });
+        if (match && Array.isArray(inds)) {
           inds.forEach(i => merged.add(i));
         }
       });
+    
       return Array.from(merged);
     }
 
